@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather-Main Page</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+
+<div class="card p-4 shadow" style="width: 400px;">
+    <h1 class="text-center text-primary mb-4">Weather</h1>
+
+    <div class="mb-3">
+        <input type="text" id="place" class="form-control" placeholder="Enter City Name">
+    </div>
+
+    <button class="btn btn-primary w-100 mb-3" onclick="check()">CHECK</button>
+
+    <ul id="data" class="list-group list-group-flush"></ul>
+</div>
+
+<script>
+    function check() {
+        let place = document.getElementById("place").value;
+        place = place.toLowerCase();
+        let weatherapikey = '068c37c9381c1c648766af2e748cc992';
+
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${place}&appid=${weatherapikey}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.cod !== 200) { // OpenWeather sends "cod" when error happens
+                    throw new Error(data.message);
+                }
+
+                let city = data.name;
+                let temperature = (data.main.temp - 273.15).toFixed(2);
+                let feelsLike = (data.main.feels_like - 273.15).toFixed(2);
+                let humidity = data.main.humidity;
+                let pressure = data.main.pressure;
+                let windSpeed = data.wind.speed;
+                let description = data.weather[0].description;
+
+                var output = document.getElementById("data");
+                output.innerHTML = "";
+
+                let info = [
+                    `City: ${city}`,
+                    `Temperature: ${temperature} °C`,
+                    `Feels Like: ${feelsLike} °C`,
+                    `Humidity: ${humidity}%`,
+                    `Pressure: ${pressure} hPa`,
+                    `Wind Speed: ${windSpeed} m/s`,
+                    `Description: ${description}`
+                ];
+
+                for (let i of info) {
+                    let li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.innerText = i;
+                    output.appendChild(li);
+                }
+            })
+            .catch(error => {
+                let output = document.getElementById("data");
+                output.innerHTML = "";
+                let li = document.createElement("li");
+                li.className = "list-group-item text-danger";
+                li.innerText = "❌ Invalid City. Please Enter City Name Correctly.";
+                output.appendChild(li);
+            });
+
+        document.getElementById("place").value = "";
+    }
+</script>
+
+</body>
+</html>
